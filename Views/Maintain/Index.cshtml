@@ -1,0 +1,419 @@
+﻿@{
+    ViewBag.Title = "Maintain";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="dashboard-wrapper">
+    <div class="container-fluid px-4 py-4">
+        <!-- HEADER -->
+        <div class="dashboard-header-enhanced mb-4">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h2 class="mb-2 fw-bold text-dark">Maintain Records</h2>
+                    <p class="text-muted mb-0 d-flex align-items-center gap-2">
+                        <i class="bi bi-tools"></i>
+                        <span>Edit, update, and delete your data</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+
+            <!-- STAFF CARD -->
+            <div class="col-xl-4 col-lg-6 col-md-12">
+                <div class="professional-card h-100">
+                    <div class="card-header-pro">
+                        <div class="header-title">
+                            <div class="icon-pro icon-blue">
+                                <i class="bi bi-person-badge"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-0">Staff Members</h5>
+                                <small class="text-muted">Manage staff records</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body-pro">
+                        @foreach (var s in ViewBag.Staffs)
+                        {
+                            <div class="data-row">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="avatar-pro bg-blue">
+                                        @s.first_name.Substring(0, 1)@s.last_name.Substring(0, 1)
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1 name-text">@s.first_name @s.last_name</h6>
+                                        <div class="detail-text"><i class="bi bi-envelope me-1"></i>@s.email</div>
+                                        <div class="detail-text"><i class="bi bi-telephone me-1"></i>@s.phone</div>
+                                        <div class="detail-text"><i class="bi bi-shop me-1"></i>@s.stores.store_name</div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-3 d-flex gap-2">
+                                    <button class="btn-action-pro btn-edit flex-fill"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#editStaffModal"
+                                            data-id="@s.staff_id"
+                                            data-first="@s.first_name"
+                                            data-last="@s.last_name"
+                                            data-email="@s.email"
+                                            data-phone="@s.phone">
+                                        <i class="bi bi-pencil"></i><span>Edit</span>
+                                    </button>
+                                    <button class="btn-action-pro btn-delete flex-fill"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#deleteStaffModal"
+                                            data-id="@s.staff_id"
+                                            data-name="@($"{s.first_name} {s.last_name}")">
+                                        <i class="bi bi-trash"></i><span>Delete</span>
+                                    </button>
+                                </div>
+                            </div>
+                         }
+                    </div>
+                </div>
+            </div>
+
+            <!-- CUSTOMERS CARD -->
+            <div class="col-xl-4 col-lg-6 col-md-12">
+                <div class="professional-card h-100">
+                    <div class="card-header-pro">
+                        <div class="header-title">
+                            <div class="icon-pro icon-purple">
+                                <i class="bi bi-people"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-0">Customers</h5>
+                                <small class="text-muted">Manage customer records</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body-pro">
+                        @foreach (var c in ViewBag.Customers)
+                        {
+                            <div class="data-row">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="avatar-pro bg-purple">
+                                        @c.first_name.Substring(0, 1)@c.last_name.Substring(0, 1)
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1 name-text">@c.first_name @c.last_name</h6>
+                                        <div class="detail-text"><i class="bi bi-envelope me-1"></i>@c.email</div>
+                                        <div class="detail-text"><i class="bi bi-telephone me-1"></i>@c.phone</div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-3 d-flex gap-2">
+                                    <button class="btn-action-pro btn-edit flex-fill"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#editCustomerModal"
+                                            data-id="@c.customer_id"
+                                            data-first="@c.first_name"
+                                            data-last="@c.last_name"
+                                            data-email="@c.email"
+                                            data-phone="@c.phone">
+                                        <i class="bi bi-pencil"></i><span>Edit</span>
+                                    </button>
+                                    <button class="btn-action-pro btn-delete flex-fill"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#deleteCustomerModal"
+                                            data-id="@c.customer_id"
+                                            data-name="@($"{c.first_name} {c.last_name}")">
+                                        <i class="bi bi-trash"></i><span>Delete</span>
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- PRODUCTS CARD -->
+            <div class="col-xl-4 col-lg-6 col-md-12">
+                <div class="professional-card h-100">
+                    <div class="card-header-pro">
+                        <div class="header-title">
+                            <div class="icon-pro icon-green">
+                                <i class="bi bi-box-seam"></i>
+                            </div>
+                            <div>
+                                <h5 class="mb-0">Products</h5>
+                                <small class="text-muted">Edit or remove items</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body-pro">
+                        @foreach (var p in ViewBag.Products)
+                        {
+                            <div class="data-row product-row">
+                                <div class="d-flex align-items-center gap-3">
+                                    @{
+                                        // Clean image path check and fallback
+                                        string imagePath = !string.IsNullOrEmpty(p.image_url)
+                                            ? Url.Content(p.image_url)
+                                            : null;
+                                    }
+                                    <div class="product-image-wrapper" style="width:100px; height:100px; display:flex; align-items:center; justify-content:center;">
+                                        @if (!string.IsNullOrEmpty(imagePath))
+                                        {
+                                            <img src="@imagePath" alt="@p.product_name" class="product-thumb" style="max-width:100%; max-height:100%; object-fit:contain;" />
+                                        }
+                                        else
+                                        {
+                                            <div class="product-icon-pro" style="font-size:2.5rem; color:#198754;">
+                                                <i class="bi bi-bicycle"></i>
+                                            </div>
+                                        }
+                                    </div>
+
+
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1 name-text">@p.product_name</h6>
+                                        <div class="detail-text"><i class="bi bi-tag me-1"></i>@p.brands.brand_name</div>
+                                        <div class="detail-text"><i class="bi bi-grid-3x3-gap me-1"></i>@p.categories.category_name</div>
+                                        <div class="d-flex justify-content-between align-items-center mt-2">
+                                            <span class="year-badge">@p.model_year</span>
+                                            <span class="price-pro">R @p.list_price.ToString("N2")</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-3 d-flex gap-2">
+                                    <button class="btn-action-pro btn-edit flex-fill"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#editProductModal"
+                                            data-id="@p.product_id"
+                                            data-name="@p.product_name"
+                                            data-year="@p.model_year"
+                                            data-price="@p.list_price"
+                                            data-image="@p.image_url">
+                                        <i class="bi bi-pencil"></i><span>Edit</span>
+                                    </button>
+                                    <button class="btn-action-pro btn-delete flex-fill"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#deleteProductModal"
+                                            data-id="@p.product_id"
+                                            data-name="@p.product_name">
+                                        <i class="bi bi-trash"></i><span>Delete</span>
+                                    </button>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ====== MODALS (Single Instances) ====== -->
+<!-- Staff Edit Modal -->
+<div class="modal fade" id="editStaffModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content pro-modal">
+            <div class="modal-header-pro">
+                <h5 class="modal-title fw-bold">Edit Staff</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body-pro">
+                @using (Html.BeginForm("EditStaff", "Maintain", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="staff_id" name="staff_id" />
+                    <div class="form-group-pro"><label>First Name</label><input id="staff_first" name="first_name" class="form-control-pro" required /></div>
+                    <div class="form-group-pro"><label>Last Name</label><input id="staff_last" name="last_name" class="form-control-pro" required /></div>
+                    <div class="form-group-pro"><label>Email</label><input id="staff_email" name="email" type="email" class="form-control-pro" required /></div>
+                    <div class="form-group-pro"><label>Phone</label><input id="staff_phone" name="phone" class="form-control-pro" /></div>
+                    <div class="d-flex gap-3 mt-4">
+                        <button type="button" class="btn-secondary-pro flex-fill" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn-primary-pro flex-fill"><i class="bi bi-check-circle me-2"></i>Update</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Customer Edit Modal -->
+<div class="modal fade" id="editCustomerModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content pro-modal">
+            <div class="modal-header-pro">
+                <h5 class="modal-title fw-bold">Edit Customer</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body-pro">
+                @using (Html.BeginForm("EditCustomer", "Maintain", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="customer_id" name="customer_id" />
+                    <div class="form-group-pro"><label>First Name</label><input id="cust_first" name="first_name" class="form-control-pro" required /></div>
+                    <div class="form-group-pro"><label>Last Name</label><input id="cust_last" name="last_name" class="form-control-pro" required /></div>
+                    <div class="form-group-pro"><label>Email</label><input id="cust_email" name="email" type="email" class="form-control-pro" required /></div>
+                    <div class="form-group-pro"><label>Phone</label><input id="cust_phone" name="phone" class="form-control-pro" /></div>
+                    <div class="d-flex gap-3 mt-4">
+                        <button type="button" class="btn-secondary-pro flex-fill" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn-primary-pro flex-fill"><i class="bi bi-check-circle me-2"></i>Update</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Product Edit Modal -->
+<div class="modal fade" id="editProductModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content pro-modal">
+            <div class="modal-header-pro">
+                <h5 class="modal-title fw-bold">Edit Product</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body-pro">
+                @using (Html.BeginForm("EditProduct", "Maintain", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="product_id" name="product_id" />
+                    <div class="form-group-pro"><label>Product Name</label><input id="product_name" name="product_name" class="form-control-pro" required /></div>
+                    <div class="form-group-pro"><label>Model Year</label><input id="product_year" name="model_year" class="form-control-pro" /></div>
+                    <div class="form-group-pro"><label>List Price</label><input id="product_price" name="list_price" class="form-control-pro" /></div>
+                    <div class="form-group-pro"><label>Image URL</label><input id="product_image" name="image_url" class="form-control-pro" placeholder="/Content/Images/bike1.jpg" /></div>
+                    <div class="d-flex gap-3 mt-4">
+                        <button type="button" class="btn-secondary-pro flex-fill" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn-primary-pro flex-fill"><i class="bi bi-check-circle me-2"></i>Update</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Staff Delete Modal -->
+<div class="modal fade" id="deleteStaffModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content pro-modal">
+            <div class="modal-header-pro">
+                <h5 class="modal-title mb-1 fw-bold text-danger">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body-pro text-center">
+                <div class="delete-icon-wrapper mb-3">
+                    <i class="bi bi-exclamation-triangle-fill text-danger fs-2"></i>
+                </div>
+                <p class="mb-4">Are you sure you want to delete <strong id="staffDeleteName"></strong>?</p>
+                @using (Html.BeginForm("DeleteStaff", "Maintain", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="staffDeleteId" name="staff_id" />
+                    <div class="d-flex gap-3">
+                        <button type="button" class="btn-secondary-pro flex-fill" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn-danger-pro flex-fill">
+                            <i class="bi bi-trash me-2"></i>Delete
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Customer Delete Modal -->
+<div class="modal fade" id="deleteCustomerModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content pro-modal">
+            <div class="modal-header-pro">
+                <h5 class="modal-title mb-1 fw-bold text-danger">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body-pro text-center">
+                <div class="delete-icon-wrapper mb-3">
+                    <i class="bi bi-exclamation-triangle-fill text-danger fs-2"></i>
+                </div>
+                <p class="mb-4">Are you sure you want to delete <strong id="customerDeleteName"></strong>?</p>
+                @using (Html.BeginForm("DeleteCustomer", "Maintain", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="customerDeleteId" name="customer_id" />
+                    <div class="d-flex gap-3">
+                        <button type="button" class="btn-secondary-pro flex-fill" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn-danger-pro flex-fill">
+                            <i class="bi bi-trash me-2"></i>Delete
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Product Delete Modal -->
+<div class="modal fade" id="deleteProductModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content pro-modal">
+            <div class="modal-header-pro">
+                <h5 class="modal-title mb-1 fw-bold text-danger">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body-pro text-center">
+                <div class="delete-icon-wrapper mb-3">
+                    <i class="bi bi-exclamation-triangle-fill text-danger fs-2"></i>
+                </div>
+                <p class="mb-4">Are you sure you want to delete <strong id="productDeleteName"></strong>?</p>
+                @using (Html.BeginForm("DeleteProduct", "Maintain", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" id="productDeleteId" name="product_id" />
+                    <div class="d-flex gap-3">
+                        <button type="button" class="btn-secondary-pro flex-fill" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn-danger-pro flex-fill">
+                            <i class="bi bi-trash me-2"></i>Delete
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const map = (modalId, fields) => {
+                const modal = document.getElementById(modalId);
+                modal.addEventListener('show.bs.modal', e => {
+                    const b = e.relatedTarget;
+                    fields.forEach(([id, attr]) => {
+                        document.getElementById(id).value = b.getAttribute(`data-${attr}`) || '';
+                    });
+                });
+            };
+            map('editStaffModal', [['staff_id', 'id'], ['staff_first', 'first'], ['staff_last', 'last'], ['staff_email', 'email'], ['staff_phone', 'phone']]);
+            map('editCustomerModal', [['customer_id', 'id'], ['cust_first', 'first'], ['cust_last', 'last'], ['cust_email', 'email'], ['cust_phone', 'phone']]);
+            map('editProductModal', [['product_id', 'id'], ['product_name', 'name'], ['product_year', 'year'], ['product_price', 'price']]);
+            map('editProductModal', [
+                ['product_id', 'id'],
+                ['product_name', 'name'],
+                ['product_year', 'year'],
+                ['product_price', 'price'],
+                ['product_image', 'image']
+            ]);
+            // Delete modal mapping
+            const mapDelete = (modalId, nameFieldId, idFieldId) => {
+                const modal = document.getElementById(modalId);
+                modal.addEventListener('show.bs.modal', e => {
+                    const b = e.relatedTarget;
+                    document.getElementById(idFieldId).value = b.getAttribute('data-id');
+                    document.getElementById(nameFieldId).textContent = b.getAttribute('data-name');
+                });
+            };
+            mapDelete('deleteStaffModal', 'staffDeleteName', 'staffDeleteId');
+            mapDelete('deleteCustomerModal', 'customerDeleteName', 'customerDeleteId');
+            mapDelete('deleteProductModal', 'productDeleteName', 'productDeleteId');
+
+        });
+    </script>
+}

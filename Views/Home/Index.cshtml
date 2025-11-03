@@ -1,0 +1,376 @@
+﻿@{
+    ViewBag.Title = "Home";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="dashboard-wrapper">
+    <!-- Enhanced Dashboard Header with Stats -->
+    <div class="container-fluid px-4 py-4">
+        <div class="dashboard-header-enhanced mb-2">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <p class="text-muted mb-0 d-flex align-items-end gap-2">
+                        <i class="bi bi-calendar3"></i>
+                        <span>@DateTime.Now.ToString("MMMM dd, yyyy")</span>
+                        <span class="separator">•</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- ================= STAFF CARD ================= -->
+            <div class="col-xl-4 col-lg-6 col-md-12">
+                <div class="professional-card h-100">
+                    <div class="card-header-pro">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="header-title">
+                                <div class="icon-pro icon-blue">
+                                    <i class="bi bi-person-badge"></i>
+                                </div>
+                                <div>
+                                    <h5 class="mb-0">Staff Members</h5>
+                                    <small class="text-muted">Manage your team</small>
+                                </div>
+                            </div>
+                            <button class="btn-pro btn-blue" data-bs-toggle="modal" data-bs-target="#createStaffModal">
+                                <i class="bi bi-plus-lg"></i>
+                                <span>Add</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card-body-pro">
+                        @foreach (var s in ViewBag.Staffs)
+                        {
+                            <div class="data-row">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="avatar-pro bg-blue">
+                                        @s.first_name.Substring(0, 1)@s.last_name.Substring(0, 1)
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1 name-text">@s.first_name @s.last_name</h6>
+                                        <div class="detail-text"><i class="bi bi-envelope me-1"></i>@s.email</div>
+                                        <div class="detail-text"><i class="bi bi-telephone me-1"></i>@s.phone</div>
+                                        <div class="detail-text"><i class="bi bi-shop me-1"></i>@s.stores.store_name</div>
+                                    </div>
+                                    <div class="action-dots">
+                                        <i class="bi bi-three-dots-vertical"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="card-footer-pro">
+                        <nav>
+                            <ul class="pagination-pro">
+                                @if (ViewBag.StaffCurrentPage > 1)
+                                {
+                                    <li><a href="@Url.Action("Index", new { staffPage = ViewBag.StaffCurrentPage - 1, customerPage = ViewBag.CustomerCurrentPage, productPage = ViewBag.ProductCurrentPage })"><i class="bi bi-chevron-left"></i></a></li>
+                                }
+                                @for (int i = 1; i <= ViewBag.StaffTotalPages && i <= 4; i++)
+                                {
+                                    <li class="@(i == ViewBag.StaffCurrentPage ? "active" : "")">
+                                        <a href="@Url.Action("Index", new { staffPage = i, customerPage = ViewBag.CustomerCurrentPage, productPage = ViewBag.ProductCurrentPage })">@i</a>
+                                    </li>
+                                }
+                                @if (ViewBag.StaffTotalPages > 4)
+                                {
+                                    <li class="dots"><span>...</span></li>
+                                }
+                                @if (ViewBag.StaffCurrentPage < ViewBag.StaffTotalPages)
+                                {
+                                    <li><a href="@Url.Action("Index", new { staffPage = ViewBag.StaffCurrentPage + 1, customerPage = ViewBag.CustomerCurrentPage, productPage = ViewBag.ProductCurrentPage })"><i class="bi bi-chevron-right"></i></a></li>
+                                    <li><a href="@Url.Action("Index", new { staffPage = ViewBag.StaffTotalPages, customerPage = ViewBag.CustomerCurrentPage, productPage = ViewBag.ProductCurrentPage })"><i class="bi bi-chevron-double-right"></i></a></li>
+                                }
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= CUSTOMERS CARD ================= -->
+            <div class="col-xl-4 col-lg-6 col-md-12">
+                <div class="professional-card h-100">
+                    <div class="card-header-pro">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="header-title">
+                                <div class="icon-pro icon-purple">
+                                    <i class="bi bi-people"></i>
+                                </div>
+                                <div>
+                                    <h5 class="mb-0">Customers</h5>
+                                    <small class="text-muted">Client database</small>
+                                </div>
+                            </div>
+                            <button class="btn-pro btn-purple" data-bs-toggle="modal" data-bs-target="#createCustomerModal">
+                                <i class="bi bi-plus-lg"></i>
+                                <span>Add</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card-body-pro">
+                        @foreach (var c in ViewBag.Customers)
+                        {
+                            <div class="data-row">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="avatar-pro bg-purple">
+                                        @c.first_name.Substring(0, 1)@c.last_name.Substring(0, 1)
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1 name-text">@c.first_name @c.last_name</h6>
+                                        <div class="detail-text"><i class="bi bi-envelope me-1"></i>@c.email</div>
+                                        <div class="detail-text"><i class="bi bi-telephone me-1"></i>@c.phone</div>
+                                    </div>
+                                    <div class="action-dots">
+                                        <i class="bi bi-three-dots-vertical"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="card-footer-pro">
+                        <nav>
+                            <ul class="pagination-pro">
+                                @if (ViewBag.CustomerCurrentPage > 1)
+                                {
+                                    <li><a href="@Url.Action("Index", new { staffPage = ViewBag.StaffCurrentPage, customerPage = ViewBag.CustomerCurrentPage - 1, productPage = ViewBag.ProductCurrentPage })"><i class="bi bi-chevron-left"></i></a></li>
+                                }
+                                @for (int i = 1; i <= ViewBag.CustomerTotalPages && i <= 4; i++)
+                                {
+                                    <li class="@(i == ViewBag.CustomerCurrentPage ? "active" : "")">
+                                        <a href="@Url.Action("Index", new { staffPage = ViewBag.StaffCurrentPage, customerPage = i, productPage = ViewBag.ProductCurrentPage })">@i</a>
+                                    </li>
+                                }
+                                @if (ViewBag.CustomerTotalPages > 4)
+                                {
+                                    <li class="dots"><span>...</span></li>
+                                }
+                                @if (ViewBag.CustomerCurrentPage < ViewBag.CustomerTotalPages)
+                                {
+                                    <li><a href="@Url.Action("Index", new { staffPage = ViewBag.StaffCurrentPage, customerPage = ViewBag.CustomerCurrentPage + 1, productPage = ViewBag.ProductCurrentPage })"><i class="bi bi-chevron-right"></i></a></li>
+                                    <li><a href="@Url.Action("Index", new { staffPage = ViewBag.StaffCurrentPage, customerPage = ViewBag.CustomerTotalPages, productPage = ViewBag.ProductCurrentPage })"><i class="bi bi-chevron-double-right"></i></a></li>
+                                }
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= PRODUCTS CARD ================= -->
+            <div class="col-xl-4 col-lg-6 col-md-12">
+                <div class="professional-card h-100">
+                    <div class="card-header-pro">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="header-title">
+                                <div class="icon-pro icon-green">
+                                    <i class="bi bi-box-seam"></i>
+                                </div>
+                                <div>
+                                    <h5 class="mb-0">Products</h5>
+                                    <small class="text-muted">Inventory catalog</small>
+                                </div>
+                            </div>
+                        </div>
+                        <form method="get" class="filter-form-pro">
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <select name="brandId" class="form-select-pro" onchange="this.form.submit()">
+                                        <option value="">All Brands</option>
+                                        @foreach (var b in ViewBag.Brands)
+                                        {
+                                            <option value="@b.brand_id">@b.brand_name</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-6">
+                                    <select name="categoryId" class="form-select-pro" onchange="this.form.submit()">
+                                        <option value="">All Categories</option>
+                                        @foreach (var cat in ViewBag.Categories)
+                                        {
+                                            <option value="@cat.category_id">@cat.category_name</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="card-body-pro">
+                        <div class="card-body-pro">
+                            @foreach (var product in ViewBag.Products)
+                            {
+                                <div class="data-row product-row">
+                                    <div class="d-flex align-items-center gap-3" style="min-height:90px;">
+
+                                        @{
+                                            // Determine image path
+                                            string imagePath = !string.IsNullOrEmpty(product.image_url)
+                                                ? Url.Content(product.image_url)
+                                                : null;
+                                        }
+
+                                        <!-- Bike Image (or fallback icon) -->
+                                        <div class="product-image-wrapper"
+                                             style="width:70px; height:70px; flex-shrink:0; display:flex; align-items:center; justify-content:center; background:#f8f9fa; border-radius:10px; overflow:hidden;">
+                                            @if (!string.IsNullOrEmpty(imagePath))
+                                            {
+                                                <img src="@imagePath"
+                                                     alt="@product.product_name"
+                                                     class="product-thumb"
+                                                     style="width:100%; height:100%; object-fit:cover; border-radius:10px;" />
+                                            }
+                                            else
+                                            {
+                                                <div class="product-icon-pro">
+                                                    <i class="bi bi-bicycle"></i>
+                                                </div>
+                                            }
+                                        </div>
+
+                                        <!-- Product Info -->
+                                        <div class="flex-grow-1">
+                                            <h6 class="mb-1 name-text">@product.product_name</h6>
+                                            <div class="detail-text"><i class="bi bi-tag me-1"></i>@product.brands.brand_name</div>
+                                            <div class="detail-text"><i class="bi bi-grid-3x3-gap me-1"></i>@product.categories.category_name</div>
+                                            <div class="d-flex justify-content-between align-items-center mt-2">
+                                                <span class="year-badge">@product.model_year</span>
+                                                <span class="price-pro">R @product.list_price.ToString("N2")</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+
+
+                    </div>
+
+                    <div class="card-footer-pro">
+                        <nav>
+                            <ul class="pagination-pro">
+                                @if (ViewBag.ProductCurrentPage > 1)
+                                {
+                                    <li><a href="@Url.Action("Index", new { staffPage = ViewBag.StaffCurrentPage, customerPage = ViewBag.CustomerCurrentPage, productPage = ViewBag.ProductCurrentPage - 1 })"><i class="bi bi-chevron-left"></i></a></li>
+                                }
+                                @for (int i = 1; i <= ViewBag.ProductTotalPages && i <= 4; i++)
+                                {
+                                    <li class="@(i == ViewBag.ProductCurrentPage ? "active" : "")">
+                                        <a href="@Url.Action("Index", new { staffPage = ViewBag.StaffCurrentPage, customerPage = ViewBag.CustomerCurrentPage, productPage = i })">@i</a>
+                                    </li>
+                                }
+                                @if (ViewBag.ProductTotalPages > 4)
+                                {
+                                    <li class="dots"><span>...</span></li>
+                                }
+                                @if (ViewBag.ProductCurrentPage < ViewBag.ProductTotalPages)
+                                {
+                                    <li><a href="@Url.Action("Index", new { staffPage = ViewBag.StaffCurrentPage, customerPage = ViewBag.CustomerCurrentPage, productPage = ViewBag.ProductCurrentPage + 1 })"><i class="bi bi-chevron-right"></i></a></li>
+                                    <li><a href="@Url.Action("Index", new { staffPage = ViewBag.StaffCurrentPage, customerPage = ViewBag.CustomerCurrentPage, productPage = ViewBag.ProductTotalPages })"><i class="bi bi-chevron-double-right"></i></a></li>
+                                }
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CREATE STAFF MODAL -->
+<div class="modal fade" id="createStaffModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content pro-modal">
+            <div class="modal-header-pro">
+                <div>
+                    <h5 class="modal-title mb-1 fw-bold">Add New Staff Member</h5>
+                    <small class="text-muted">Fill in the details below</small>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body-pro">
+                @using (Html.BeginForm("CreateStaff", "Home", FormMethod.Post))
+                {
+                    <div class="form-group-pro">
+                        <label class="form-label-pro">First Name</label>
+                        <input name="first_name" class="form-control-pro" placeholder="Enter first name" required />
+                    </div>
+                    <div class="form-group-pro">
+                        <label class="form-label-pro">Last Name</label>
+                        <input name="last_name" class="form-control-pro" placeholder="Enter last name" required />
+                    </div>
+                    <div class="form-group-pro">
+                        <label class="form-label-pro">Email Address</label>
+                        <input type="email" name="email" class="form-control-pro" placeholder="email@example.com" required />
+                    </div>
+                    <div class="form-group-pro">
+                        <label class="form-label-pro">Phone Number</label>
+                        <input name="phone" class="form-control-pro" placeholder="Enter phone number" />
+                    </div>
+                    <div class="form-group-pro">
+                        <label class="form-label-pro">Store</label>
+                        <select name="store_id" class="form-control-pro" required>
+                            <option value="">Select Store</option>
+                            @foreach (var store in ViewBag.Stores)
+                            {
+                                <option value="@store.store_id">@store.store_name</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="d-flex gap-3 mt-4">
+                        <button type="button" class="btn-secondary-pro flex-fill" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn-primary-pro flex-fill">
+                            <i class="bi bi-check-circle me-2"></i>Save Staff
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CREATE CUSTOMER MODAL -->
+<div class="modal fade" id="createCustomerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content pro-modal">
+            <div class="modal-header-pro">
+                <div>
+                    <h5 class="modal-title mb-1 fw-bold">Add New Customer</h5>
+                    <small class="text-muted">Fill in the details below</small>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body-pro">
+                @using (Html.BeginForm("CreateCustomer", "Home", FormMethod.Post))
+                {
+                    <div class="form-group-pro">
+                        <label class="form-label-pro">First Name</label>
+                        <input name="first_name" class="form-control-pro" placeholder="Enter first name" required />
+                    </div>
+                    <div class="form-group-pro">
+                        <label class="form-label-pro">Last Name</label>
+                        <input name="last_name" class="form-control-pro" placeholder="Enter last name" required />
+                    </div>
+                    <div class="form-group-pro">
+                        <label class="form-label-pro">Email Address</label>
+                        <input type="email" name="email" class="form-control-pro" placeholder="email@example.com" required />
+                    </div>
+                    <div class="form-group-pro">
+                        <label class="form-label-pro">Phone Number</label>
+                        <input name="phone" class="form-control-pro" placeholder="Enter phone number" />
+                    </div>
+                    <div class="d-flex gap-3 mt-4">
+                        <button type="button" class="btn-secondary-pro flex-fill" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn-primary-pro flex-fill">
+                            <i class="bi bi-check-circle me-2"></i>Save Customer
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

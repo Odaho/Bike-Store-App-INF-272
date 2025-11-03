@@ -1,0 +1,36 @@
+﻿@model IEnumerable<BikeStoreApp.Models.customers>
+@{
+    ViewBag.Title = "Customers";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="dashboard-wrapper">
+    <div class="container-fluid px-4 py-4">
+        <div class="dashboard-header-enhanced mb-4">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <h2 class="fw-bold mb-1 text-dark">Customers</h2>
+                    <p class="text-muted mb-0"><i class="bi bi-people"></i> Customer list and contact info</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="professional-card">
+            <div class="card-body-pro">
+                @foreach (var c in Model)
+                {
+                    <div class="data-row">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="avatar-pro bg-purple">@c.first_name.Substring(0, 1)@c.last_name.Substring(0, 1)</div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1 name-text">@c.first_name @c.last_name</h6>
+                                <div class="detail-text"><i class="bi bi-envelope me-1"></i>@c.email</div>
+                                <div class="detail-text"><i class="bi bi-telephone me-1"></i>@c.phone</div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

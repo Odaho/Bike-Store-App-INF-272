@@ -1,0 +1,462 @@
+﻿@model IEnumerable<BikeStoreApp.Controllers.ReportController.PopularProductRow>
+@{
+    ViewBag.Title = "Report";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var labels = (string[])ViewBag.ChartLabels ?? new string[0];
+    var values = (int[])ViewBag.ChartValues ?? new int[0];
+}
+
+<div class="dashboard-wrapper">
+    <div class="container-fluid px-4 py-4">
+
+        <!-- ========================================
+             HEADER SECTION WITH FILTERS
+        ======================================== -->
+        <div class="dashboard-header-enhanced mb-4">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+                <div>
+                    <h2 class="mb-2 fw-bold text-dark">Popular Products Report</h2>
+                    <p class="text-muted mb-0 d-flex align-items-center gap-2">
+                        <i class="bi bi-bar-chart"></i>
+                        <span>Top @ViewBag.Top products by quantity sold</span>
+                    </p>
+                </div>
+
+                <!-- Filter Form -->
+                <form method="get" class="d-flex align-items-center gap-2 flex-wrap">
+                    <input type="date"
+                           class="form-control-pro"
+                           name="from"
+                           value="@ViewBag.From"
+                           style="max-width: 180px;" />
+
+                    <input type="date"
+                           class="form-control-pro"
+                           name="to"
+                           value="@ViewBag.To"
+                           style="max-width: 180px;" />
+
+                    <select name="top" class="form-select-pro" style="max-width: 120px;">
+                        @foreach (var t in new[] { 5, 10, 15, 20 })
+                        {
+                            <option value="@t" @(t == (int)ViewBag.Top ? "selected" : "")>
+                                Top @t
+                            </option>
+                        }
+                    </select>
+
+                    <button type="submit" class="btn-primary-pro">
+                        <i class="bi bi-arrow-clockwise me-1"></i>
+                        Generate
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- ========================================
+             REPORT CARD (Captured as Image)
+        ======================================== -->
+        <div id="reportCard" class="professional-card mb-4">
+
+            <!-- Card Header -->
+            <div class="card-header-pro">
+                <div class="header-title">
+                    <div class="icon-pro icon-green">
+                        <i class="bi bi-graph-up"></i>
+                    </div>
+                    <div>
+                        <h5 class="mb-0">Report: @ViewBag.From — @ViewBag.To</h5>
+                        <small class="text-muted">
+                            Includes product, brand, category, quantity & revenue
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card Body: Chart + Table -->
+            <div class="card-body-pro" style="background: white;">
+                <div class="row g-4">
+
+                    <!-- Chart Section -->
+                    <div class="col-lg-6">
+                        <div class="chart-container">
+                            <canvas id="reportChart" height="240"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Table Section -->
+                    <div class="col-lg-6">
+                        <div class="table-responsive">
+                            <table id="reportTable" class="table table-sm table-striped align-middle report-table">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Brand</th>
+                                        <th>Category</th>
+                                        <th class="text-end">Qty</th>
+                                        <th class="text-end">Revenue (R)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var r in Model)
+                                    {
+                                        <tr>
+                                            <td class="fw-semibold">@r.Product</td>
+                                            <td>@r.Brand</td>
+                                            <td>@r.Category</td>
+                                            <td class="text-end">@r.Quantity</td>
+                                            <td class="text-end fw-semibold text-success">
+                                                @r.Revenue.ToString("N2")
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card Footer: Save Options -->
+            <div class="card-footer-pro">
+                <form id="saveForm"
+                      method="post"
+                      action="@Url.Action("Save")"
+                      class="d-flex flex-wrap gap-3 align-items-start">
+
+                    @Html.AntiForgeryToken()
+
+                    <!-- File Name Input -->
+                    <div class="form-group-inline">
+                        <label class="form-label-inline">File Name</label>
+                        <input type="text"
+                               name="fileName"
+                               class="form-control-pro"
+                               placeholder="report-2024"
+                               style="max-width:220px" />
+                    </div>
+
+                    <!-- File Type Select -->
+                    <div class="form-group-inline">
+                        <label class="form-label-inline">Format</label>
+                        <select name="fileType"
+                                class="form-select-pro"
+                                style="max-width:140px">
+                            <option value="png">PNG Image</option>
+                            <option value="csv">CSV Data</option>
+                        </select>
+                    </div>
+
+                    <!-- Description (Rich Text) -->
+                    <div class="form-group-inline flex-grow-1" style="min-width:320px;">
+                        <label class="form-label-inline">Description (Optional)</label>
+                        <textarea id="descBox"
+                                  name="descriptionHtml"
+                                  class="form-control-pro"
+                                  placeholder="Add notes about this report..."
+                                  rows="3"></textarea>
+                    </div>
+
+                    <!-- Hidden Fields -->
+                    <input type="hidden" id="imageData" name="imageData" />
+                    <input type="hidden" id="csvData" name="csvData" />
+
+                    <!-- Save Button -->
+                    <div class="d-flex align-items-end">
+                        <button type="button" id="saveBtn" class="btn-primary-pro">
+                            <i class="bi bi-save2 me-2"></i>
+                            Save Report
+                        </button>
+                    </div>
+
+                    <!-- Success Message -->
+                    @if (TempData["ReportMessage"] != null)
+                    {
+                        <div class="alert alert-success-pro w-100 mb-0 mt-2">
+                            <i class="bi bi-check-circle me-2"></i>
+                            @TempData["ReportMessage"]
+                        </div>
+                    }
+                </form>
+            </div>
+        </div>
+
+        <!-- ========================================
+             DOCUMENT ARCHIVE SECTION
+        ======================================== -->
+        <div class="professional-card">
+
+            <!-- Card Header -->
+            <div class="card-header-pro">
+                <div class="header-title">
+                    <div class="icon-pro icon-blue">
+                        <i class="bi bi-folder2-open"></i>
+                    </div>
+                    <div>
+                        <h5 class="mb-0">Document Archive</h5>
+                        <small class="text-muted">Previously saved reports</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card Body: Archive List -->
+            <div class="card-body-pro" style="background: white;">
+                @if ((ViewBag.Archive as IEnumerable<BikeStoreApp.Controllers.ReportController.ArchiveItem>)?.Any() == true)
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle archive-table">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>File Name</th>
+                                    <th>Type</th>
+                                    <th>Saved Date</th>
+                                    <th>Description</th>
+                                    <th class="text-end">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var a in (IEnumerable<BikeStoreApp.Controllers.ReportController.ArchiveItem>)ViewBag.Archive)
+                                {
+                                    <tr>
+                                        <!-- File Name -->
+                                        <td class="fw-semibold">
+                                            <i class="bi bi-file-earmark me-2 text-muted"></i>
+                                            @a.DisplayName
+                                        </td>
+
+                                        <!-- File Type Badge -->
+                                        <td>
+                                            <span class="badge-type badge-@a.FileType.ToLower()">
+                                                @a.FileType.ToUpper()
+                                            </span>
+                                        </td>
+
+                                        <!-- Saved Date -->
+                                        <td class="text-muted">
+                                            <i class="bi bi-clock me-1"></i>
+                                            @a.SavedAt.ToString("yyyy-MM-dd HH:mm")
+                                        </td>
+
+                                        <!-- Description -->
+                                        <td class="archive-description">
+                                            @Html.Raw(string.IsNullOrWhiteSpace(a.DescriptionHtml)
+                                                ? "<span class='text-muted fst-italic'>No description</span>"
+                                                : a.DescriptionHtml)
+                                        </td>
+
+                                        <!-- Actions -->
+                                        <td class="text-end">
+                                            <div class="btn-group-archive">
+                                                <!-- Download Button -->
+                                                <a class="btn-action-archive btn-download"
+                                                   href="@Url.Action("Download", new { name = a.BaseName, ext = a.FileType })"
+                                                   title="Download">
+                                                    <i class="bi bi-download"></i>
+                                                    Download
+                                                </a>
+
+                                                <!-- Delete Button -->
+                                                <form method="post"
+                                                      action="@Url.Action("Delete")"
+                                                      onsubmit="return confirm('Are you sure you want to delete this report?');"
+                                                      class="d-inline">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="baseName" value="@a.BaseName" />
+                                                    <button type="submit"
+                                                            class="btn-action-archive btn-delete-archive"
+                                                            title="Delete">
+                                                        <i class="bi bi-trash"></i>
+                                                        Delete
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <i class="bi bi-inbox"></i>
+                        </div>
+                        <h6 class="empty-state-title">No Saved Reports</h6>
+                        <p class="empty-state-text">
+                            Generate and save your first report to see it appear here.
+                        </p>
+                    </div>
+                }
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ========================================
+     SCRIPTS SECTION
+======================================== -->
+@section Scripts {
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+    <!-- html2canvas (for capturing report as image) -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
+    <!-- TinyMCE (rich text editor) -->
+    <script src="https://cdn.jsdelivr.net/npm/tinymce@7.2.1/tinymce.min.js"></script>
+
+    <script>
+        // ==================== CHART INITIALIZATION ====================
+        (function initChart() {
+            var ctx = document.getElementById('reportChart').getContext('2d');
+            var labels = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(labels));
+            var values = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(values));
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Quantity Sold',
+                        data: values,
+                        backgroundColor: 'rgba(5, 150, 105, 0.8)',
+                        borderColor: 'rgba(5, 150, 105, 1)',
+                        borderWidth: 2,
+                        borderRadius: 6,
+                        hoverBackgroundColor: 'rgba(5, 150, 105, 1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            enabled: true,
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            padding: 12,
+                            cornerRadius: 8,
+                            titleFont: { size: 14, weight: 'bold' },
+                            bodyFont: { size: 13 }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                autoSkip: false,
+                                font: { size: 11 }
+                            },
+                            grid: {
+                                display: false
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                font: { size: 11 }
+                            },
+                            grid: {
+                                color: 'rgba(203, 213, 225, 0.3)'
+                            }
+                        }
+                    }
+                }
+            });
+        })();
+
+        // ==================== TINYMCE INITIALIZATION ====================
+        tinymce.init({
+            selector: '#descBox',
+            menubar: false,
+            plugins: 'lists link',
+            toolbar: 'bold italic underline | bullist numlist | link | undo redo',
+            resize: true,
+            height: 120,
+            statusbar: false,
+            content_style: `
+                body {
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                    font-size: 14px;
+                    color: #0f172a;
+                    padding: 8px;
+                }
+            `
+        });
+
+        // ==================== SAVE BUTTON HANDLER ====================
+        document.getElementById('saveBtn').addEventListener('click', function () {
+            var type = document.querySelector('select[name="fileType"]').value;
+            var fileName = document.querySelector('input[name="fileName"]').value.trim();
+
+            // Validate file name
+            if (!fileName) {
+                alert('Please enter a file name.');
+                return;
+            }
+
+            // Show loading state
+            var btn = this;
+            var originalHTML = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Saving...';
+
+            if (type === 'png') {
+                // ========== SAVE AS PNG ==========
+                html2canvas(document.getElementById('reportCard'), {
+                    scale: 2,
+                    backgroundColor: '#ffffff',
+                    logging: false
+                }).then(function (canvas) {
+                    document.getElementById('imageData').value = canvas.toDataURL('image/png');
+
+                    // Sync TinyMCE content
+                    if (tinymce.get('descBox')) {
+                        tinymce.get('descBox').save();
+                    }
+
+                    document.getElementById('saveForm').submit();
+                }).catch(function(error) {
+                    console.error('Error capturing image:', error);
+                    alert('Error creating image. Please try again.');
+                    btn.disabled = false;
+                    btn.innerHTML = originalHTML;
+                });
+            }
+            else if (type === 'csv') {
+                // ========== SAVE AS CSV ==========
+                try {
+                    var rows = Array.from(document.querySelectorAll('#reportTable tr'));
+                    var csv = rows.map(function (tr) {
+                        return Array.from(tr.querySelectorAll('th,td'))
+                            .map(function(cell) {
+                                var text = cell.innerText.trim();
+                                return '"' + text.replace(/"/g, '""') + '"';
+                            })
+                            .join(',');
+                    }).join('\n');
+
+                    document.getElementById('csvData').value = csv;
+
+                    // Sync TinyMCE content
+                    if (tinymce.get('descBox')) {
+                        tinymce.get('descBox').save();
+                    }
+
+                    document.getElementById('saveForm').submit();
+                } catch(error) {
+                    console.error('Error creating CSV:', error);
+                    alert('Error creating CSV. Please try again.');
+                    btn.disabled = false;
+                    btn.innerHTML = originalHTML;
+                }
+            }
+        });
+    </script>
+}
+
+
